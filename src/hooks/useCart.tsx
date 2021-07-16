@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios';
 import { createContext, ReactNode, useContext, useState } from 'react';
 import { toast } from 'react-toastify';
 import { api } from '../services/api';
@@ -33,18 +34,34 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const addProduct = async (productId: number) => {
     try {
-      api.get(`/products/${productId}`)
-        .then(response => {
-          const storagedProducts = window.localStorage.getItem(cartName);
-            if(storagedProducts) {
-              const parsedtoObjectProducts = JSON.parse(storagedProducts);
-              window.localStorage.setItem(cartName, JSON.stringify([...parsedtoObjectProducts, response.data]));
-            } else {
-              window.localStorage.setItem(cartName, JSON.stringify([response.data]));
-            } 
-          setCart(prevState => prevState.concat(response.data));
+      const productResponse = await api.get(`/products/${productId}`)
+      .catch(error => {
+        if(error.response.status >= 400 || error.response.status <= 500 ) {
+          toast("Ocorreu um erro ao consultar seu produto");
+        } else {
+          toast("Ocorreu um erro, tente novamente mais tarde!");
+        }
+      })
+      .then((response:any) => {
+          return response.data;
+      })
+
+      await api.get(`/stock/${productId}`)
+        .catch(error => {
+          if(error.response.status >= 400 || error.response.status <= 500) {
+            toast("Ocorreu um erro ao consultar seu produto");
+          } else {
+            toast("Ocorreu um erro, tente novamente mais tarde!");
+          }
         })
-    } catch {
+        .then((stockResponse:any) => {
+          if(stockResponse.data.amount > 0){
+            setCart(prevState => [...prevState, {...productResponse, amount: 1}]);
+          } else {
+            toast("Quantidade solicitada fora de estoque");
+          }
+        })
+      } catch {
       throw new Error;
     }
   };
