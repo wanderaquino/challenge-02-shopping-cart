@@ -57,7 +57,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         .then((stockResponse:any) => {
           if(stockResponse.data.amount > 0){
             setCart(prevState => [...prevState, {...productResponse, amount: 1}]);
-            window.localStorage.setItem(cartName, JSON.stringify({...cart}));
+            window.localStorage.setItem(cartName, JSON.stringify(cart.concat(productResponse)));
           } else {
             toast("Quantidade solicitada fora de estoque");
             return
