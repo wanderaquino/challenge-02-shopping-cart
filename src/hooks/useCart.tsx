@@ -2,6 +2,7 @@ import { createContext, ReactNode, useContext, useState } from 'react';
 import { toast } from 'react-toastify';
 import { api } from '../services/api';
 import { Product, Stock } from '../types';
+const cartName = "@RocketShoes:cart";
 
 interface CartProviderProps {
   children: ReactNode;
@@ -24,7 +25,7 @@ const CartContext = createContext<CartContextData>({} as CartContextData);
 export function CartProvider({ children }: CartProviderProps): JSX.Element {
   
   const [cart, setCart] = useState<Product[]>(() => {
-    const storaged = window.localStorage.getItem("@RocketShoes:cart");
+    const storaged = window.localStorage.getItem(cartName);
       if(storaged) {
         return [{...JSON.parse(storaged)}];
       } else {return []};
@@ -34,12 +35,12 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     try {
       api.get(`/products/${productId}`)
         .then(response => {
-          const storagedProducts = window.localStorage.getItem("@RocketShoes:cart");
+          const storagedProducts = window.localStorage.getItem(cartName);
             if(storagedProducts) {
               const parsedtoObjectProducts = JSON.parse(storagedProducts);
-              window.localStorage.setItem("@RocketShoes:cart", JSON.stringify([...parsedtoObjectProducts, response.data]));
+              window.localStorage.setItem(cartName, JSON.stringify([...parsedtoObjectProducts, response.data]));
             } else {
-              window.localStorage.setItem("@RocketShoes:cart", JSON.stringify([response.data]));
+              window.localStorage.setItem(cartName, JSON.stringify([response.data]));
             } 
           setCart(prevState => prevState.concat(response.data));
         })
