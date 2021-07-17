@@ -6,7 +6,7 @@ import {
 } from 'react-icons/md';
 
 import { useCart } from '../../hooks/useCart';
-// import { formatPrice } from '../../util/format';
+import { formatPrice } from '../../util/format';
 import { Container, ProductTable, Total } from './styles';
 
 interface Product {
@@ -19,16 +19,12 @@ interface Product {
 
 const Cart = (): JSX.Element => {
   const { cart, removeProduct, updateProductAmount } = useCart();
+  
+  const cartFormatted = cart.map((product) => {
+    const formatedPrice = formatPrice(product.price);
+    return Object.assign(product, {priceFormated:formatedPrice});
+  });
 
-  // const cartFormatted = cart.map(product => ({
-  //   // TODO
-  // }))
-  // const total =
-  //   formatPrice(
-  //     cart.reduce((sumTotal, product) => {
-  //       // TODO
-  //     }, 0)
-  //   )
 
   function handleProductIncrement(product: Product) {
     // TODO
@@ -55,13 +51,14 @@ const Cart = (): JSX.Element => {
           </tr>
         </thead>
         <tbody>
-          <tr data-testid="product">
+          {cartFormatted.map(cart => (
+            <tr key={cart.id} data-testid="product">
             <td>
-              <img src="https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis1.jpg" alt="Tênis de Caminhada Leve Confortável" />
+              <img src={cart.image} alt={cart.title} />
             </td>
             <td>
-              <strong>Tênis de Caminhada Leve Confortável</strong>
-              <span>R$ 179,90</span>
+              <strong>{cart.title}</strong>
+              <span>{cart.priceFormated}</span>
             </td>
             <td>
               <div>
@@ -101,6 +98,9 @@ const Cart = (): JSX.Element => {
               </button>
             </td>
           </tr>
+
+          ))}
+          
         </tbody>
       </ProductTable>
 
