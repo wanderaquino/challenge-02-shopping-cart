@@ -1,9 +1,8 @@
-import { AxiosResponse } from 'axios';
 import { createContext, ReactNode, useContext, useState } from 'react';
 import { toast } from 'react-toastify';
 import { api } from '../services/api';
-import { Product, Stock } from '../types';
-const cartName = "@RocketShoes:cart";
+import { Product } from '../types';
+import {cartName} from "../util/format";
 
 interface CartProviderProps {
   children: ReactNode;
@@ -24,15 +23,21 @@ interface CartContextData {
 const CartContext = createContext<CartContextData>({} as CartContextData);
 
 export function CartProvider({ children }: CartProviderProps): JSX.Element {
-  
   const [cart, setCart] = useState<Product[]>(() => {
     const storaged = window.localStorage.getItem(cartName);
       if(storaged) {
-        return [{...JSON.parse(storaged)}];
-      } else {return []};
-  });
+        const parsedStorage = JSON.parse(storaged);
+        return [...parsedStorage];
+      } 
+      else
+      {
+        return []
+      };
+  }
+  );
 
   const addProduct = async (productId: number) => {
+
     try {
       const productResponse = await api.get(`/products/${productId}`)
       .catch(error => {
@@ -44,7 +49,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       })
       .then((response:any) => {
           return response.data;
-      })
+      });
 
       await api.get(`/stock/${productId}`)
         .catch(error => {
@@ -56,17 +61,21 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         })
         .then((stockResponse:any) => {
           if(stockResponse.data.amount > 0){
-            setCart(prevState => [...prevState, {...productResponse, amount: 1}]);
-            window.localStorage.setItem(cartName, JSON.stringify(cart.concat(productResponse)));
+            const localStorage = window.localStorage.getItem(cartName);
+            if (localStorage) {
+              const parsedStorage = JSON.parse(localStorage);
+              window.localStorage.setItem(cartName, JSON.stringify([...parsedStorage, productResponse]));
+            } else {
+              window.localStorage.setItem(cartName, JSON.stringify([{...productResponse}]));
+            }   
+            setCart(prevState => [...prevState, productResponse]);
           } else {
             toast("Quantidade solicitada fora de estoque");
-            return
-          }
-        })
-      } catch {
-      throw new Error;
+          }})
+    } catch {
+        throw new Error;
+      }
     }
-  };
 
   const removeProduct = (productId: number) => {
     try {
