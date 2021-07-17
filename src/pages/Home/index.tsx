@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { MdAddShoppingCart } from 'react-icons/md';
+import {cartName} from "../../util/format";
 
 import { ProductList } from './styles';
 import { api } from '../../services/api';
@@ -25,15 +26,15 @@ const Home = (): JSX.Element => {
     const [products, setProducts] = useState<ProductFormatted[]>([]);
     const {addProduct, cart} = useCart();
 
-  const cartItemsAmount = cart.reduce((sumAmount, product) => {
+  const cartItemsAmount = cart.reduce((accProduct, currProduct) => {
     const amount = 1;
-      if(product.id in sumAmount) {
-        let increment = sumAmount[product.id];
-        sumAmount[product.id] = ++increment;
-        return sumAmount;
+      if(currProduct.id in accProduct) {
+        let increment = accProduct[currProduct.id];
+        accProduct[currProduct.id] = ++increment;
+        return accProduct;
     } else {
-      sumAmount[product.id] = amount;
-      return sumAmount;
+      accProduct[currProduct.id] = amount;
+      return accProduct;
     }
   }, {} as CartItemsAmount)
 
@@ -49,14 +50,14 @@ const Home = (): JSX.Element => {
   }, []);
 
   function handleAddProduct(id: number) {
-    addProduct(id)
+      addProduct(id);
   }
 
   return (
     <ProductList>
       {products.map(product => {
           return (
-            <li key={product.id}>
+          <li key={product.id}>
             <img src={product.image} alt={product.title}/>
             <strong>{product.title}</strong>
             <span>{product.priceFormatted}</span>
