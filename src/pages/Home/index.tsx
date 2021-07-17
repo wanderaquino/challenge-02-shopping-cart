@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { MdAddShoppingCart } from 'react-icons/md';
-import {cartName} from "../../util/format";
 
 import { ProductList } from './styles';
 import { api } from '../../services/api';
