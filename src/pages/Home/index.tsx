@@ -5,6 +5,7 @@ import { ProductList } from './styles';
 import { api } from '../../services/api';
 import { formatPrice } from '../../util/format';
 import { useCart } from '../../hooks/useCart';
+import {cartName} from "../../util/names";
 
 interface Product {
   id: number;
@@ -26,15 +27,10 @@ const Home = (): JSX.Element => {
     const {addProduct, cart} = useCart();
 
   const cartItemsAmount = cart.reduce((accProduct, currProduct) => {
-    const amount = 1;
-      if(currProduct.id in accProduct) {
-        let increment = accProduct[currProduct.id];
-        accProduct[currProduct.id] = ++increment;
-        return accProduct;
-    } else {
-      accProduct[currProduct.id] = amount;
-      return accProduct;
-    }
+    const newProduct = {...accProduct};
+    newProduct[currProduct.id] = currProduct.amount;
+    return newProduct;
+
   }, {} as CartItemsAmount)
 
   useEffect(() => {
@@ -49,8 +45,8 @@ const Home = (): JSX.Element => {
   }, []);
 
   function handleAddProduct(id: number) {
-      addProduct(id);
-  }
+    addProduct(id)
+  };
 
   return (
     <ProductList>
