@@ -73,7 +73,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       console.log(productLocalCart);
 
       if(productLocalCart?.id === productId) {
-        console.log("Entrou_");
         const cartWithRemoved = localCart.filter(currProduct => {
           if(currProduct.id !== productId) {
             return currProduct;
