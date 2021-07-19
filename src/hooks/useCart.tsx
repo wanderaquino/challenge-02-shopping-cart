@@ -60,18 +60,29 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         setCart(localCart);
         window.localStorage.setItem(cartName, JSON.stringify(localCart));
       }
-    console.log(cart);
 
     }
     catch {
-      toast.error("Erro na adição do produto");
+      toast.error("Erro na alteração do produto");
     }
   }
   const removeProduct = (productId: number) => {
     try {
-      //TODO
+      const localCart = [...cart];
+      const indexOfProduct = localCart.findIndex(product => product.id === productId);
+      console.log(indexOfProduct);
+
+      const cartWithRemoved = localCart.filter(currProduct => {
+        if(currProduct.id !== productId) {
+          return currProduct;
+        }
+      })
+      setCart(cartWithRemoved);
+      window.localStorage.setItem(cartName, JSON.stringify(cartWithRemoved));
+
+      console.log(cartWithRemoved);
     } catch {
-      // TODO
+      toast.error("Erro na remoção do produto");
     }
   };
 

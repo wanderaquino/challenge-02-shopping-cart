@@ -20,18 +20,6 @@ interface Product {
 
 const Cart = (): JSX.Element => {
   const { cart, removeProduct, updateProductAmount } = useCart();
-  const testReduce = cart.reduce((acc,curr) => {
-    if( acc[`${curr.id}`]) {
-      acc[`${curr.id}`] += 1; 
-      return acc;
-    } else {
-      acc[`${curr.id}`] = 1;
-      return acc;
-    }
-  }, {} as any);
-
-  console.log(testReduce);
-
 
   const cartFormatted = 
   cart.map((currProduct) => {
@@ -56,7 +44,7 @@ const Cart = (): JSX.Element => {
   }
 
   function handleRemoveProduct(productId: number) {
-    // TODO
+    removeProduct(productId);
   }
 
   return (
@@ -113,7 +101,7 @@ const Cart = (): JSX.Element => {
               <button
                 type="button"
                 data-testid="remove-product"
-              // onClick={() => handleRemoveProduct(product.id)}
+                onClick={() => handleRemoveProduct(cart.id)}
               >
                 <MdDelete size={20} />
               </button>
