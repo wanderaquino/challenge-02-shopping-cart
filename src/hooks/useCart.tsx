@@ -44,7 +44,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       const stockResponse = await api.get(`/stock/${productId}`);
       const currentAmount = productLocalCart ? productLocalCart.amount : 0;
 
-      if (currentAmount > stockResponse.data.amount) {
+      if ((currentAmount+1) > stockResponse.data.amount) {
         toast.error("Quantidade solicitada fora de estoque");
         return;
       }
@@ -63,26 +63,30 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
     }
     catch {
-      toast.error("Erro na alteração do produto");
+      toast.error("Erro na adição do produto");
     }
   }
   const removeProduct = (productId: number) => {
     try {
       const localCart = [...cart];
-      const indexOfProduct = localCart.findIndex(product => product.id === productId);
-      console.log(indexOfProduct);
+      const productLocalCart = localCart.find(product => product.id === productId);
+      console.log(productLocalCart);
 
-      const cartWithRemoved = localCart.filter(currProduct => {
-        if(currProduct.id !== productId) {
-          return currProduct;
-        }
-      })
-      setCart(cartWithRemoved);
-      window.localStorage.setItem(cartName, JSON.stringify(cartWithRemoved));
+      if(productLocalCart?.id === productId) {
+        console.log("Entrou_");
+        const cartWithRemoved = localCart.filter(currProduct => {
+          if(currProduct.id !== productId) {
+            return currProduct;
+          }
+        })
+        setCart(cartWithRemoved);
+        window.localStorage.setItem(cartName, JSON.stringify(cartWithRemoved));
+      } else {
+        throw Error();
+      }
 
-      console.log(cartWithRemoved);
     } catch {
-      toast.error("Erro na remoção do produto");
+      toast.error('Erro na remoção do produto');
     }
   };
 
@@ -100,14 +104,14 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
         return;
       }
 
-      if(productLocalCart) {
+      if(productLocalCart && amount > 0) {
         productLocalCart.amount = amount;
         window.localStorage.setItem(cartName, JSON.stringify(localCart));
         setCart(localCart);
       }
 
     } catch {
-      toast.error("Erro na adição do produto");
+      toast.error("Erro na alteração de quantidade do produto");
     }
   };
 
