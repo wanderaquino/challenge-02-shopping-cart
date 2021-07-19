@@ -1,3 +1,4 @@
+import curriedMix from 'polished/lib/color/mix';
 import React from 'react';
 import {
   MdDelete,
@@ -19,11 +20,24 @@ interface Product {
 
 const Cart = (): JSX.Element => {
   const { cart, removeProduct, updateProductAmount } = useCart();
-  
-  const cartFormatted = cart.map((product) => {
-    const formatedPrice = formatPrice(product.price);
-    return Object.assign(product, {priceFormated:formatedPrice});
-  });
+  const testReduce = cart.reduce((acc,curr) => {
+    if( acc[`${curr.id}`]) {
+      acc[`${curr.id}`] += 1; 
+      return acc;
+    } else {
+      acc[`${curr.id}`] = 1;
+      return acc;
+    }
+  }, {} as any);
+
+  console.log(testReduce);
+
+
+  const cartFormatted = 
+  cart.map((currProduct) => {
+      const priceFormated = formatPrice(currProduct.price);
+      return Object.assign(currProduct, {...currProduct, priceFormated});
+    }, [] as any);
 
 
   function handleProductIncrement(product: Product) {
@@ -74,7 +88,7 @@ const Cart = (): JSX.Element => {
                   type="text"
                   data-testid="product-amount"
                   readOnly
-                  value={2}
+                  value={cart.amount}
                 />
                 <button
                   type="button"
