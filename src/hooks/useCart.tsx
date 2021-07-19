@@ -37,46 +37,37 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
   );
 
   const addProduct = async (productId: number) => {
-
+    console.log(productId);
     try {
-      const productResponse = await api.get(`/products/${productId}`)
-      .catch(error => {
-        if(error.response.status >= 400 || error.response.status <= 500 ) {
-          toast("Ocorreu um erro ao consultar seu produto");
-        } else {
-          toast("Ocorreu um erro, tente novamente mais tarde!");
-        }
-      })
-      .then((response:any) => {
-          return response.data;
-      });
+      const localCart = [...cart];
+      const productLocalCart = localCart.find(product => product.id === productId);
+      const productResponse = await api.get(`/products/${productId}`);
+      const stockResponse = await api.get(`/stock/${productId}`);
+      const currentAmount = productLocalCart ? productLocalCart.amount : 0;
 
-      await api.get(`/stock/${productId}`)
-        .catch(error => {
-          if(error.response.status >= 400 || error.response.status <= 500) {
-            toast("Ocorreu um erro ao consultar seu produto");
-          } else {
-            toast("Ocorreu um erro, tente novamente mais tarde!");
-          }
-        })
-        .then((stockResponse:any) => {
-          if(stockResponse.data.amount > 0){
-            const localStorage = window.localStorage.getItem(cartName);
-            if (localStorage) {
-              const parsedStorage = JSON.parse(localStorage);
-              window.localStorage.setItem(cartName, JSON.stringify([...parsedStorage, productResponse]));
-            } else {
-              window.localStorage.setItem(cartName, JSON.stringify([{...productResponse}]));
-            }   
-            setCart(prevState => [...prevState, productResponse]);
-          } else {
-            toast("Quantidade solicitada fora de estoque");
-          }})
-    } catch {
-        throw new Error;
+      if (currentAmount > stockResponse.data.amount) {
+        toast.error("Quantidade solicitada fora de estoque");
+        return;
       }
-    }
 
+      if(productLocalCart) {  
+        productLocalCart.amount += 1;
+        setCart(localCart);
+        window.localStorage.setItem(cartName, JSON.stringify(localCart));
+
+      } else {
+        const newProduct = {...productResponse.data, amount: 1};
+        localCart.push(newProduct);
+        setCart(localCart);
+        window.localStorage.setItem(cartName, JSON.stringify(localCart));
+      }
+    console.log(cart);
+
+    }
+    catch {
+      toast.error("Erro na adição do produto");
+    }
+  }
   const removeProduct = (productId: number) => {
     try {
       // TODO
