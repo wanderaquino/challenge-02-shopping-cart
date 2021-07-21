@@ -1,5 +1,3 @@
-import curriedMix from 'polished/lib/color/mix';
-import React from 'react';
 import {
   MdDelete,
   MdAddCircleOutline,
@@ -30,9 +28,10 @@ const Cart = (): JSX.Element => {
     }, [] as any);
 
   const totalCart = cart.reduce((acc, curr) => {
-      acc.total += curr.price;
+      acc.total += curr.price * curr.amount;
       return acc
   }, {total: 0} as any);
+  console.log(totalCart);
 
   function handleProductIncrement(product: Product) {
     const incrementedAmount = ++product.amount;
